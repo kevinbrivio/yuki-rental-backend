@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Go build and test artifacts
+bin/
+dist/
+coverage.out
+*.coverprofile
+
+# IDE/editor metadata
+.idea/
+.vscode/
