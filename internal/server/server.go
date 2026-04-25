@@ -34,7 +34,7 @@ func (s *Server) Run() error {
 	// 1. Create new http.Server:
 	srv := &http.Server{
 		Addr: s.cfg.App.Addr(),
-		Handler: nil,
+		Handler: s.routes(),
 		ReadTimeout: 10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout: 60 * time.Second,
