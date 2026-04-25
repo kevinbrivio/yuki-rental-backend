@@ -87,9 +87,9 @@ func Load() (*Config, error) {
 		DB: DBConfig{
 			Host: envOrDefault("DB_HOST", "localhost"),
 			Port: envIntOrDefault("DB_PORT", 5432),
-			User: envOrDefault("DB_USER", "postgres"),
-			Password: envOrDefault("DB_PASSWORD", "postgres"),
-			Name: envOrDefault("DB_NAME", "yuki-rental"),
+			User: envOrDefault("DB_USER", "yuki"),
+			Password: envOrDefault("DB_PASSWORD", "yuki_secret"),
+			Name: envOrDefault("DB_NAME", "yuki_rental"),
 			SSLMode: envOrDefault("DB_SSLMODE", "disable"),
 		},
 		Session: SessionConfig{
