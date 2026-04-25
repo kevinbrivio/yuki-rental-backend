@@ -5,13 +5,15 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/kevinbrivio/yuki-rental-backend/internal/middleware"
 )
 
 func (s *Server) routes() chi.Router {
 	r := chi.NewRouter()
 	
 	// middleware goes here
-	// 
+	r.Use(middleware.Logger(s.log))
+	
 	// router goes here
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
