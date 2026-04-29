@@ -4,28 +4,26 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/config"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )	
 
-func New(ctx context.Context, cfg config.DBConfig) (*pgxpool.Pool, error) {
-	// parse dsn
-	poolCfg, err := pgxpool.ParseConfig(cfg.DSN())
+func New(ctx context.Context, cfg config.DBConfig) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(cfg.DSN()), &gorm.Config{})
 	if err != nil {
-		return nil, fmt.Errorf("parsing db config: %w", err)
-	}
-	
-	// creates the pool
-	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
-	if err != nil {
-		return nil, fmt.Errorf("creating pool error: %w", err)
+		return nil, fmt.Errorf("opening database: %w", err)
 	}
 	
 	// verifies the connection
-	if err := pool.Ping(ctx); err != nil {
-		pool.Close() // clean up
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("getting underlying db: %w", err)
+	}
+	if err := sqlDB.PingContext(ctx); err != nil {
 		return nil, fmt.Errorf("pinging database: %w", err)
 	}
 	
-	return pool, nil
+	
+	return db, nil
 }

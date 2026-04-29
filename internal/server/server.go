@@ -11,17 +11,17 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/config"
+	"gorm.io/gorm"
 )
 
 type Server struct {
 	cfg *config.Config
-	db *pgxpool.Pool
+	db *gorm.DB
 	log *slog.Logger
 }
 
-func New(cfg *config.Config, db *pgxpool.Pool, log *slog.Logger) *Server {
+func New(cfg *config.Config, db *gorm.DB, log *slog.Logger) *Server {
 	log.Info("Server created")
 	return &Server{
 		cfg: cfg,

@@ -27,10 +27,16 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Check db
-	err := s.db.Ping(ctx)
+	sqlDB, err := s.db.DB()
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
-		json.NewEncoder(w).Encode(map[string]string{"status": "ok", "database": "down"})
+		json.NewEncoder(w).Encode(map[string]string{"status": "failed", "database": "down"})
+	}
+	
+	err = sqlDB.PingContext(ctx)
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]string{"status": "failed", "database": "down"})
 	} else {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(map[string]string{"status": "ok", "database": "up"})

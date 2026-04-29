@@ -53,7 +53,12 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("creating database: %w", err)
 	}
-	defer db.Close()
+	
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("getting underlying error: %w", err)
+	}
+	defer sqlDB.Close()
 
 	// 4. Create server then run it
 	srv := server.New(cfg, db, slogLogger)
