@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/domain"
+	"gorm.io/gorm"
 )
 
 type UserRepository interface { // Hosting database operations, not business logic
@@ -13,17 +13,23 @@ type UserRepository interface { // Hosting database operations, not business log
 }
 
 type userRepository struct {
-	db *pgxpool.Pool
+	db *gorm.DB
 }
 
-func NewUserRepository(db *pgxpool.Pool) UserRepository { // constructor
+func NewUserRepository(db *gorm.DB) UserRepository { // constructor
 	return &userRepository{db: db}
 }
 
 func (ur *userRepository) CreateUser(ctx context.Context, user *domain.User) error {
-	
+	return ur.db.WithContext(ctx).Create(user).Error
 }
 
 func (ur *userRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
+	var user domain.User
+	err := ur.db.WithContext(ctx).Where("email = ?", email).Find(&user).Error
+	if err != nil {
+		return nil, err
+	}
 	
+	return &user, nil
 }
