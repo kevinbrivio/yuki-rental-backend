@@ -9,7 +9,10 @@ import (
 
 	"github.com/kevinbrivio/yuki-rental-backend/internal/config"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/database"
+	"github.com/kevinbrivio/yuki-rental-backend/internal/handler"
+	"github.com/kevinbrivio/yuki-rental-backend/internal/repository"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/server"
+	"github.com/kevinbrivio/yuki-rental-backend/internal/service"
 	"go.uber.org/zap"
 	"go.uber.org/zap/exp/zapslog"
 )
@@ -27,7 +30,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("loading config: %w", err)
 	}
-	
+
 	// 2. Logger
 	// Use JSONHandler if Prod, else use TextHandler
 	var logger *zap.Logger
@@ -42,26 +45,38 @@ func run() error {
 			return err
 		}
 	}
-	
+
 	slogLogger := slog.New(zapslog.NewHandler(logger.Core()))
-	
+
 	// 3. Create to database
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	db, err := database.New(ctx, cfg.DB)
 	if err != nil {
 		return fmt.Errorf("creating database: %w", err)
 	}
-	
+
 	sqlDB, err := db.DB()
 	if err != nil {
 		return fmt.Errorf("getting underlying error: %w", err)
 	}
 	defer sqlDB.Close()
 
-	// 4. Create server then run it
-	srv := server.New(cfg, db, slogLogger)
-	
+	// 4. Repositories
+	userRepo := repository.NewUserRepository(db)
+	sessionRepo := repository.NewSessionRepository(db)
+
+	// 5. Services
+	authService := service.NewAuthService(userRepo, sessionRepo)
+
+	// 6. Handlers
+	handlers := handler.Handlers{
+		Auth: handler.NewAuthHandler(authService),
+	}
+
+	// 7. Create server with router
+	srv := server.New(cfg, db, slogLogger, &handlers)
+
 	return srv.Run()
 }

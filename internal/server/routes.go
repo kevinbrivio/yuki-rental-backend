@@ -8,15 +8,26 @@ import (
 	"github.com/kevinbrivio/yuki-rental-backend/internal/middleware"
 )
 
-func (s *Server) routes() chi.Router {
+func (s *Server) setupRoutes() chi.Router {
 	r := chi.NewRouter()
 
 	// middleware goes here
 	r.Use(middleware.Logger(s.log))
 	r.Use(middleware.Recovery(s.log))
 
-	// router goes here
+	// Health
 	r.Get("/health", s.handleHealth)
+
+	// Auth Handler
+	r.Route("/api/auth", func(r chi.Router) {
+		r.Post("/register", s.handlers.Auth.Register)
+		r.Post("/login", s.handlers.Auth.Login)
+
+		r.Group(func (r chi.Router) {
+			// r.Use(authMiddleware) => TODO: Build this next
+			r.Post("/logout", s.handlers.Auth.Logout)
+		})
+	})
 
 	return r
 }

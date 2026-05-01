@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/kevinbrivio/yuki-rental-backend/internal/config"
+	"github.com/kevinbrivio/yuki-rental-backend/internal/handler"
 	"gorm.io/gorm"
 )
 
@@ -19,14 +20,16 @@ type Server struct {
 	cfg *config.Config
 	db *gorm.DB
 	log *slog.Logger
+	handlers *handler.Handlers
 }
 
-func New(cfg *config.Config, db *gorm.DB, log *slog.Logger) *Server {
+func New(cfg *config.Config, db *gorm.DB, log *slog.Logger, h *handler.Handlers) *Server {
 	log.Info("Server created")
 	return &Server{
 		cfg: cfg,
 		db: db,
 		log: log,
+		handlers: h,
 	}
 }
 
@@ -34,7 +37,7 @@ func (s *Server) Run() error {
 	// 1. Create new http.Server:
 	srv := &http.Server{
 		Addr: s.cfg.App.Addr(),
-		Handler: s.routes(),
+		Handler: s.setupRoutes(),
 		ReadTimeout: 10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout: 60 * time.Second,
