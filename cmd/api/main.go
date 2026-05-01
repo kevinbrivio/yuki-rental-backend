@@ -10,6 +10,7 @@ import (
 	"github.com/kevinbrivio/yuki-rental-backend/internal/config"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/database"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/handler"
+	"github.com/kevinbrivio/yuki-rental-backend/internal/middleware"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/repository"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/server"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/service"
@@ -75,8 +76,11 @@ func run() error {
 		Auth: handler.NewAuthHandler(authService),
 	}
 
+	// Auth Middleware
+	authMiddleware := middleware.Auth(sessionRepo)
+
 	// 7. Create server with router
-	srv := server.New(cfg, db, slogLogger, &handlers)
+	srv := server.New(cfg, db, slogLogger, &handlers, authMiddleware)
 
 	return srv.Run()
 }

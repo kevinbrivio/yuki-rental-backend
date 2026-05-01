@@ -18,9 +18,9 @@ type RegisterRequest struct {
 
 type LoginRequest struct {
 	Email     string `json:"email"`
-	Password  string `json:"passsword"`
-	IPAddress string `json:"ip_address"`
-	UserAgent string `json:"user_agent"`
+	Password  string `json:"password"`
+	IPAddress string `json:"-"`
+	UserAgent string `json:"-"`
 }
 
 type LoginResponse struct {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/kevinbrivio/yuki-rental-backend/internal/middleware"
 )
 
@@ -24,7 +24,7 @@ func (s *Server) setupRoutes() chi.Router {
 		r.Post("/login", s.handlers.Auth.Login)
 
 		r.Group(func (r chi.Router) {
-			// r.Use(authMiddleware) => TODO: Build this next
+			r.Use(s.authMW)
 			r.Post("/logout", s.handlers.Auth.Logout)
 		})
 	})

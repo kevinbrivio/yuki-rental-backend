@@ -26,7 +26,7 @@ func (ur *userRepository) CreateUser(ctx context.Context, user *domain.User) err
 
 func (ur *userRepository) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var user domain.User
-	err := ur.db.WithContext(ctx).Where("email = ?", email).Find(&user).Error
+	err := ur.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
